@@ -14,31 +14,45 @@ const double F = 96485.3415;  // Faraday constant (C/mol)
 const double T = 298.15;  // Temperature (K)
 const double n = 1;  // Number of electrons transferred
 
-// Define function to calculate impedance spectrum
+// Structure for impedance parameters
+struct ImpedanceParameters {
+    double omega;
+    double Rct;
+    double alpha;
+    double omegac;
+};
+
+// Function to calculate impedance spectrum
 complex<double> impedance(double omega, double Rct, double alpha, double omegac) {
-  // Calculate impedance using Randles circuit model
-  double Zreal = Rct / (1 + pow(omega * Rct, 2) + pow(omega * omegac, 2));
-  double Zimag = sqrt(1 - pow(Zreal / Rct, 2));
+    // Calculate impedance using Randles circuit model
+    double Zreal = Rct / (1 + pow(omega * Rct, 2) + pow(omega * omegac, 2));
+    double Zimag = sqrt(1 - pow(Zreal / Rct, 2));
 
-  // Convert real and imaginary parts to complex impedance
-  complex<double> Z(Zreal, Zimag);
+    // Convert real and imaginary parts to complex impedance
+    complex<double> Z(Zreal, Zimag);
 
-  return Z;
+    return Z;
 }
 
 // Function to read data from a CSV file
-vector<vector<double>> read_csv(const string& filename) {
+vector<ImpedanceParameters> read_csv(const string& filename) {
     ifstream data_file(filename);
-    vector<vector<double>> data;
+    vector<ImpedanceParameters> data;
     string line, word;
+
+    if (!data_file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        exit(1);
+    }
 
     while (getline(data_file, line)) {
         stringstream s(line);
-        vector<double> row;
-        while (getline(s, word, ',')) {
-            row.push_back(stod(word));
-        }
-        data.push_back(row);
+        ImpedanceParameters params;
+        getline(s, word, ','); params.omega = stod(word);
+        getline(s, word, ','); params.Rct = stod(word);
+        getline(s, word, ','); params.alpha = stod(word);
+        getline(s, word, ','); params.omegac = stod(word);
+        data.push_back(params);
     }
 
     return data;
@@ -46,20 +60,12 @@ vector<vector<double>> read_csv(const string& filename) {
 
 // Main function
 int main() {
-    // Read data from CSV file
     string filename = "data.csv";  // Replace with your CSV file name
-    vector<vector<double>> csv_data = read_csv(filename);
+    vector<ImpedanceParameters> csv_data = read_csv(filename);
 
-    // Process each row of the CSV data
-    for (const auto& row : csv_data) {
-        double omega = row[0];
-        double Rct = row[1];
-        double alpha = row[2];
-        double omegac = row[3];
-
-        // Call your impedance function or other processing here
-        complex<double> Z = impedance(omega, Rct, alpha, omegac);
-        cout << "Omega: " << omega << ", Impedance: " << Z.real() << " + " << Z.imag() << "i" << endl;
+    for (const auto& params : csv_data) {
+        complex<double> Z = impedance(params.omega, params.Rct, params.alpha, params.omegac);
+        cout << "Omega: " << params.omega << ", Impedance: " << Z.real() << " + " << Z.imag() << "i" << endl;
     }
 
     return 0;
