@@ -2,6 +2,8 @@
 
 This repository contains three modular C++ programs designed for simulating and analyzing electrochemical systems. It includes chronoamperometric simulation, impedance spectrum modeling, and a serial-to-TCP interface for hardware integration with Windows-based software.
 
+This code was developed for electrochemical modeling purposes and is suitable for academic projects, prototyping sensor systems, or interfacing low-cost potentiostats.
+
 ---
 
 ## Contents
@@ -31,4 +33,4 @@ g++ Chronoamperometry.cpp -o chrono
 ./chrono
 
 
-This code was developed for electrochemical modeling purposes and is suitable for academic projects, prototyping sensor systems, or interfacing low-cost potentiostats.
+
